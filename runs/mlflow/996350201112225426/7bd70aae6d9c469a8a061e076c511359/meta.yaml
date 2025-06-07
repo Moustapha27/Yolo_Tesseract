@@ -1,0 +1,15 @@
+artifact_uri: /Users/msankhane/Desktop/Orchestration/kedro-road-sign/runs/mlflow/996350201112225426/7bd70aae6d9c469a8a061e076c511359/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '996350201112225426'
+lifecycle_stage: active
+run_id: 7bd70aae6d9c469a8a061e076c511359
+run_name: train9
+run_uuid: 7bd70aae6d9c469a8a061e076c511359
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1749213519537
+status: 1
+tags: []
+user_id: msankhane

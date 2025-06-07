@@ -1,29 +1,4 @@
 
-
-# # Les données en format yaml
-# yolo_final_config:
-#   type: yaml.YAMLDataset
-#   filepath: data/01_raw/data.yaml  
-
-# # Structure des dossiers pour YOLO - en tant que dossiers d'images partitionnés
-# yolo_train_images:
-#   type: partitioned.ImageDataset
-#   path: data/01_raw/train/images
-
-# yolo_val_images:
-#   type: partitioned.ImageDataset
-#   path: data/01_raw/val/images
-
-# # Modèles
-# yolov8_pretrained:
-#   type: pickle.PickleDataset
-#   filepath: data/06_models/yolov8n.pt
-
-# yolov8_trained:
-#   type: pickle.PickleDataset
-#   filepath: data/06_models/yolov8_traffic_sign.pt
-
-
 yolo:
   type: yaml.YAMLDataset
   filepath: data/01_raw/data.yaml
@@ -31,3 +6,8 @@ yolo:
 yolov8_model:
   type: pickle.PickleDataset
   filepath: data/06_models/yolov8_model.pkl
+
+#pour les métriques
+yolov8_metrics:
+  type: json.JSONDataset
+  filepath: data/08_reporting/yolov8_metrics.json
