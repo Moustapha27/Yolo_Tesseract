@@ -1,0 +1,46 @@
+name: MLOpsPipeline
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v2
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: 📦 Install dependencies
+      run: |
+        sudo apt-get update
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+
+    - name: 🧪 Run tests with coverage
+      run: |
+        pytest tests/ --cov=src --cov-fail-under=80
+
+    - name: 🐳 Build Docker image
+      if: success()
+      run: |
+        docker build -t msankhane/yolo_ocr:latest .
+
+    - name: 🔐 Login to DockerHub
+      if: success()
+      run: |
+        echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: 🚀 Push Docker image
+      if: success()
+      run: |
+        docker push msankhane/yolo_ocr:latest
