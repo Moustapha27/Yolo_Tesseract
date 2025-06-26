@@ -12,7 +12,7 @@ conf/**/*credentials*
 data/**
 
 # except their sub-folders
-!data/**/data.yml
+!data/01_raw/data.yml
 
 # also keep all .gitkeep files
 !.gitkeep
