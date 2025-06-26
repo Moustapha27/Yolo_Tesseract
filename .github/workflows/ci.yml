@@ -1,46 +1,65 @@
+# Nom du workflow affiché dans GitHub Actions
 name: MLOpsPipeline
 
+# Déclencheurs du workflow :
+# Ce pipeline s'exécutera lorsqu'un push ou une pull request est effectué sur la branche 'main'
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
   pull_request:
-    branches: ["main"]
+    branches: ["master"]
 
+# Définition des jobs à exécuter dans le pipeline
 jobs:
   build-and-deploy:
+    # Le job sera exécuté sur une machine virtuelle Ubuntu
     runs-on: ubuntu-latest
 
     steps:
+    # Étape 1 : Récupération du code source du dépôt GitHub
     - name: 📥 Checkout code
       uses: actions/checkout@v2
 
+    # Étape 2 : Configuration de la version de Python à utiliser
     - name: 🐍 Setup Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.10'
+        python-version: '3.10'  # Spécifie que l'on veut utiliser Python 3.10
 
+    # Étape 3 : Installation des dépendances du projet
     - name: 📦 Install dependencies
       run: |
-        sudo apt-get update
-        pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov
+        sudo apt-get update                     # Mise à jour des paquets du système
+        pip install --upgrade pip              # Mise à jour de pip
+        pip install -r requirements.txt        # Installation des dépendances du projet
+        pip install pytest pytest-cov          # Installation des outils de test avec couverture
 
+    # Étape 4 : Exécution des tests avec mesure de la couverture du code
     - name: 🧪 Run tests with coverage
       run: |
         pytest tests/ --cov=src --cov-fail-under=80
+        # Lance les tests dans le dossier 'tests/'
+        # Calcule la couverture du dossier 'src'
+        # Échoue si la couverture est inférieure à 80 %
 
+    # Étape 5 : Construction de l’image Docker (si les tests ont réussi)
     - name: 🐳 Build Docker image
       if: success()
       run: |
         docker build -t msankhane/yolo_ocr:latest .
+        # Construit l’image Docker à partir du Dockerfile dans le répertoire courant
+        # L’image sera taguée 'msankhane/yolo_ocr:latest'
 
+    # Étape 6 : Connexion à DockerHub (si build réussi)
     - name: 🔐 Login to DockerHub
       if: success()
       run: |
         echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        # Connexion sécurisée à DockerHub avec les identifiants stockés dans les secrets GitHub
 
+    # Étape 7 : Poussée de l’image Docker vers DockerHub (si login réussi)
     - name: 🚀 Push Docker image
       if: success()
       run: |
         docker push msankhane/yolo_ocr:latest
+        # Envoie l’image Docker vers le registre DockerHub sous le nom défini
