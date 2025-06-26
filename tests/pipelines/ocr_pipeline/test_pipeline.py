@@ -31,3 +31,4 @@ class TestRunOcrOnDetection(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+#ce test 
