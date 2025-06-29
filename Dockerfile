@@ -17,8 +17,8 @@ RUN apt-get update && apt-get install -y \
 
 # install project requirements
 COPY requirements.txt /tmp/requirements.txt
-RUN uv pip install --system --no-cache-dir -r /tmp/requirements.txt && rm -f /tmp/requirements.txt
-
+#RUN uv pip install --system --no-cache-dir -r /tmp/requirements.txt && rm -f /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm -f /tmp/requirements.txt
 # add kedro user
 ARG KEDRO_UID=999
 ARG KEDRO_GID=0
