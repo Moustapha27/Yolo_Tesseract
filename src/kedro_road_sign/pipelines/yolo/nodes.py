@@ -1,61 +1,60 @@
-"""
-Pipeline YOLOv8-10 pour la détection de panneaux routiers
-=====================================================
-Ce module définit tous les nœuds et la pipeline nécessaires pour entraîner 
-et évaluer un modèle YOLOv8-10 pour la détection de panneaux routiers.
-"""
-
-import os
-import shutil
-import yaml
-import numpy as np
-from PIL import Image
-from typing import Dict, List, Any
-from pathlib import Path
 from ultralytics import YOLO
-import pickle
+import yaml
+import os
+from typing import Dict
 
-def train_yolov8_model(data_yaml: dict) -> YOLO:
-    """
-    Entraîne un modèle YOLOv8 
-    """
-    model = YOLO("yolov8n.pt")  
+def validate_yolo_structure(data_path: str) -> dict:
+    """Valide la structure YOLO existante"""
+    required_folders = ['train', 'test']
+    required_files = ['data.yaml']
+    
+    for folder in required_folders:
+        folder_path = os.path.join(data_path, folder)
+        if not os.path.exists(folder_path):
+            raise FileNotFoundError(f"Dossier manquant: {folder_path}")
+        
+        images_dir = os.path.join(folder_path, 'images')
+        labels_dir = os.path.join(folder_path, 'labels')
+        
+        if not os.path.exists(images_dir) or not os.path.exists(labels_dir):
+            raise FileNotFoundError(f"Structure YOLO incomplète dans {folder_path}")
+    
+    data_yaml_path = os.path.join(data_path, 'data.yaml')
+    if not os.path.exists(data_yaml_path):
+        raise FileNotFoundError(f"Fichier data.yaml manquant dans {data_path}")
+    
+    return {"yolo_data_path": data_path, "data_yaml": data_yaml_path}
 
-    # Dossier contenant le fichier data.yml
-    data_path = data_yaml.get("__path__", "data/01_raw/data.yaml")
-
-    model.train(
-        data=data_path,
-        epochs=20,
-        imgsz=640,
-        batch=16,
-        patience=5
+def train_yolov8(data_info: dict, model_output_dir: str, epochs: int = 50, imgsz: int = 640) -> dict:
+    """Entraîne et sauvegarde le modèle YOLOv8"""
+    model = YOLO("yolov8s.pt")
+    results = model.train(
+        data=data_info["data_yaml"],
+        epochs=epochs,
+        imgsz=imgsz,
+        project=model_output_dir,
+        name="yolov8_sign_detection",
+        save=True,
+        save_period=5
     )
-
-    return model
-
-
-def save_yolov8_model(model: YOLO, filepath: str) -> None:
-    """
-    Sauvegarde le modèle YOLOv8 dans un fichier pickle.
-    """
-    with open(filepath, "wb") as f:
-        pickle.dump(model, f)
-
-def evaluate_yolov8_model(model: YOLO, data_yaml: dict) -> Dict[str, Any]:
-    """
-    Évalue le modèle YOLOv8 sur les données de validation et retourne les métriques.
-    """
-    data_path = data_yaml.get("__path__", "data/01_raw/data.yaml")
     
-    metrics = model.val(data=data_path)
+    best_model_path = os.path.join(model_output_dir, "yolov8_sign_detection", "weights", "best.pt")
+    if not os.path.exists(best_model_path):
+        raise FileNotFoundError(f"Modèle non sauvegardé à {best_model_path}")
     
-    results = metrics.results_dict
-
-    print("\n📊 Résultats de l'évaluation YOLOv8 :")
-    for metric, value in results.items():
-        print(f"- {metric}: {value}")
-
     return {
-        "metrics": results
+        "best_model": best_model_path,
+        "last_model": os.path.join(model_output_dir, "yolov8_sign_detection", "weights", "last.pt"),
+        "train_results": results
+    }
+
+def evaluate_yolov8(model_path: str, data_info: dict) -> dict:
+    """Évalue le modèle YOLOv8"""
+    model = YOLO(model_path)
+    metrics = model.val(data=data_info["data_yaml"], split="test")
+    return {
+        "mAP50": metrics.box.map50,
+        "mAP50-95": metrics.box.map,
+        "precision": metrics.box.p,
+        "recall": metrics.box.r
     }

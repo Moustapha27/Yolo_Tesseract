@@ -1,24 +1,54 @@
 
-yolo:
-  type: yaml.YAMLDataset
-  filepath: data/01_raw/data.yaml
+# yolo:
+#   type: yaml.YAMLDataset
+#   filepath: data/01_raw/data.yaml
 
-yolov8_model:
+# yolov8_model:
+#   type: pickle.PickleDataset
+#   filepath: data/06_models/yolov8_model.pkl
+
+# #pour les métriques
+# yolov8_metrics:
+#   type: json.JSONDataset
+#   filepath: data/08_reporting/yolov8_metrics.json
+
+
+# #OCR
+
+# detected_crops_paths:
+#   type: json.JSONDataset
+#   filepath: data/02_intermediate/detected_crops_paths.json
+
+# ocr_texts:
+#   type: text.TextDataset
+#   filepath: data/08_reporting/ocr_texts.txt
+
+
+# YOLO
+yolo_best_model:
   type: pickle.PickleDataset
-  filepath: data/06_models/yolov8_model.pkl
+  filepath: data/06_models/best_model.pt
+  versioned: true
 
-#pour les métriques
-yolov8_metrics:
+yolo_last_model:
+  type: pickle.PickleDataset
+  filepath: data/06_models/last_model.pt
+  versioned: true
+
+yolo_train_results:
   type: json.JSONDataset
-  filepath: data/08_reporting/yolov8_metrics.json
+  filepath: data/08_reporting/yolo_train_results.json
 
-
-#OCR
-
-detected_crops_paths:
+yolo_metrics:
   type: json.JSONDataset
-  filepath: data/02_intermediate/detected_crops_paths.json
+  filepath: data/08_reporting/yolo_metrics.json
 
-ocr_texts:
-  type: text.TextDataset
-  filepath: data/08_reporting/ocr_texts.txt
+# OCR
+ocr_results:
+  type: json.JSONDataset
+  filepath: data/07_model_output/ocr_results.json
+
+# Prediction
+combined_predictions:
+  type: json.JSONDataset
+  filepath: data/07_model_output/combined_predictions.json

@@ -1,4 +1,24 @@
-yolov8_model_path: data/06_models/yolov8_model.pkl
+# yolov8_model_path: data/06_models/yolov8_model.pkl
 
-ocr_language: "fra"
-images_for_ocr: data/08_reporting/roi_images
+# ocr_language: "fra"
+# images_for_ocr: data/08_reporting/roi_images
+
+
+yolo:
+  raw_data_path: "data/01_raw"
+  model_output_dir: "data/06_models"
+  epochs: 50
+  imgsz: 640
+  model_path: "data/06_models/best.pt"
+
+ocr:
+  output_dir: "data/04_feature/ocr_input"
+  lang: "fra"
+
+tesseract:
+  tessdata_prefix: "/usr/share/tesseract-ocr/4.00/tessdata"
+
+prediction:
+  image_paths:
+    - "data/01_raw/test/images/00004.png"
+    - "data/01_raw/test/images/00075.png"
