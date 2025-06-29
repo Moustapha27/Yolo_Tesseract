@@ -6,6 +6,7 @@ import builtins
 import cv2
 import numpy as np
 from PIL import Image
+import shutil
 
 from src.kedro_road_sign.pipelines.ocr_pipeline.nodes import (
     configure_tesseract,
@@ -14,10 +15,18 @@ from src.kedro_road_sign.pipelines.ocr_pipeline.nodes import (
 )
 
 def test_configure_tesseract_sets_env(monkeypatch):
+    tesseract_path = shutil.which("tesseract")
+    if not tesseract_path:
+        pytest.skip("Tesseract n'est pas installé ou introuvable dans le PATH")
+
     config = {"tessdata_prefix": "/fake/path"}
     monkeypatch.delenv("TESSDATA_PREFIX", raising=False)
+
+    try:
+        configure_tesseract(config)
+    except RuntimeError as e:
+        pytest.fail(f"Erreur inattendue lors de la configuration de Tesseract : {e}")
     
-    configure_tesseract(config)
     assert os.environ.get("TESSDATA_PREFIX") == "/fake/path"
 
 @patch("src.kedro_road_sign.pipelines.ocr_pipeline.nodes.pytesseract.get_tesseract_version")
