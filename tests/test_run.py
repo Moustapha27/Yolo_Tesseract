@@ -1,19 +1,14 @@
-"""
-This module contains example tests for a Kedro project.
-Tests should be placed in ``src/tests``, in modules that mirror your
-project's structure, and in files named test_*.py.
-"""
+from unittest.mock import patch
 from pathlib import Path
-
 from kedro.framework.session import KedroSession
 from kedro.framework.startup import bootstrap_project
 
-# The tests below are here for the demonstration purpose
-# and should be replaced with the ones testing the project
-# functionality
-
 class TestKedroRun:
-    def test_kedro_run(self):
+    @patch("src.kedro_road_sign.pipelines.ocr_pipeline.nodes.pytesseract.get_tesseract_version")
+    def test_kedro_run(self, mock_get_version):
+        # Simuler que Tesseract est bien installé en retournant une version fictive
+        mock_get_version.return_value = "5.3.0"
+
         bootstrap_project(Path.cwd())
 
         with KedroSession.create(project_path=Path.cwd()) as session:
